@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced ITSM Ticket Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #f0f9ff;
+            --accent-color: #10b981;
+            --text-dark: #1f2937;
+            --text-light: #4b5563;
+            --border-radius: 8px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+    background-color: #f3f4f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    line-height: 1.6;
+    background: linear-gradient(135deg, #f0f9ff 0%, #cbf0ff 100%);
+    overflow: hidden; /* Disable body scroll */
+}
+
+.ticket-container {
+    position: fixed;
+    top: 10%; /* Adjust positioning */
+    left: 20%;
+    width: 60%;
+    max-width: 900px;
+    max-height: 80%;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Enable vertical scrolling inside the container */
+    overflow-x: hidden;
+    border: 1px solid rgba(0,0,0,0.05);
+
+}
+
+        .ticket-header {
+            position: fixed;
+            width: 60%;
+            z-index: 2;
+            top: 10%; /* Adjust positioning */
+            background: linear-gradient(to right, var(--primary-color), #6366f1);
+            padding: 25px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ticket-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), #6366f1);
+        }
+
+        .ticket-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ticket-header h2 i {
+            opacity: 0.8;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 1.25rem;
+            padding: 8px 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .ticket-form {
+            margin-top: 80px;
+            padding: 40px;
+            background: white;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            background-color: #f9fafb;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+            background-color: white;
+        }
+
+        .attachment-dropzone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #e5e7eb;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .attachment-dropzone:hover {
+            border-color: var(--primary-color);
+            background-color: var(--secondary-color);
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.4s ease;
+        }
+
+        .btn-cancel {
+            background-color: #f3f4f6;
+            color: var(--text-light);
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn-create {
+            background: linear-gradient(to right, var(--primary-color), #6366f1);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 20px -10px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 600px) {
+            .ticket-container {
+                max-width: 98%;
+                margin: 10px;
+            }
+
+            .ticket-form {
+                padding: 25px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+        :root {
+    --hover-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover effect for form labels */
+.form-group label:hover {
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+/* Hover effect for form fields */
+.form-control:hover {
+    background-color: #ffffff;
+    border-color: var(--primary-color);
+    box-shadow: var(--hover-shadow);
+}
+
+/* Attachment dropzone hover effect */
+.attachment-dropzone:hover {
+    transform: scale(1.05);
+    border-color: var(--accent-color);
+    background-color: #e0f7fa;
+}
+
+/* Button hover effects */
+.btn-cancel:hover {
+    background-color: #e5e7eb;
+    color: var(--text-dark);
+}
+
+.btn-create:hover {
+    background: linear-gradient(to right, #6366f1, var(--primary-color));
+    box-shadow: var(--hover-shadow);
+}
+
+/* Close button hover effect */
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transition: transform 0.3s, background 0.3s;
+}
+
+/* General hover effect for links (if applicable) */
+a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+
+
+
+    </style>
+</head>
+<body>
+    <div class="ticket-container">
+        <div class="ticket-header">
+            <h2>
+                <i class="fas fa-ticket-alt"></i> 
+                Create Support Ticket
+            </h2>
+            <button class="close-btn" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form class="ticket-form">
+            <div class="form-group">
+                <label for="project">Project <span style="color: red;">*</span></label>
+                <select class="form-control" id="project" name="project" required>
+                    <option value="">Select Project</option>
+                    <option value="SUP">Support (SUP)</option>
+                    <option value="ITN">IT Network</option>
+                    <option value="IH2.0">Internal Helpdesk 2.0</option>
+                    <option value="SIIE">Systems Integration</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="issueType">Issue Type <span style="color: red;">*</span></label>
+                <select class="form-control" id="issueType" name="issueType" required>
+                    <option value="">Select Issue Type</option>
+                    <option value="Incident">System Incident</option>
+                    <option value="Bug">Technical Bug</option>
+                    <option value="FeatureRequest">Feature Request</option>
+                    <option value="Support">General Support</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="requestType">Request Type <span style="color: red;">*</span></label>
+                <select class="form-control" id="requestType" name="requestType" required>
+                    <option value="">Select Request Type</option>
+                    <option value="CriticalBug">Critical Bug</option>
+                    <option value="UIBug">User Interface Bug</option>
+                    <option value="NewModule">New Module Request</option>
+                    <option value="LoginHelp">Authentication Support</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="assignTo">Assign To <span style="color: red;">*</span></label>
+                <select class="form-control" id="assignTo" name="assignTo" required>
+                    <option value="">Select Assignee</option>
+                    <option value="support123HR">HR Support Team</option>
+                    <option value="support123DEV">Development Team</option>
+                    <option value="support123INFRA">Infrastructure Team</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Ticket Title <span style="color: red;">*</span></label>
+                <input type="text" class="form-control" id="title" name="title" placeholder="Summarize your issue in a few words" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Detailed Description <span style="color: red;">*</span></label>
+                <textarea class="form-control" id="description" name="description" rows="4" placeholder="Provide comprehensive details about the issue" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority <span style="color: red;">*</span></label>
+                <select class="form-control" id="priority" name="priority" required>
+                    <option value="">Select Priority</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="impact">Business Impact <span style="color: red;">*</span></label>
+                <select class="form-control" id="impact" name="impact" required>
+                    <option value="">Select Impact Level</option>
+                    <option value="Extreme">Extreme</option>
+                    <option value="Significant">Significant</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="attachment">Attachments</label>
+                <div class="form-control attachment-dropzone">
+                    <div>
+                        <i class="fas fa-cloud-upload-alt" style="color: var(--primary-color); font-size: 2.5rem; margin-bottom: 10px;"></i>
+                        <p>Drop files to upload or click to browse</p>
+                    </div>
+                    <input type="file" hidden id="attachment" name="attachment" multiple>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="btn btn-create">
+                    <i class="fas fa-paper-plane"></i> Submit Ticket
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const attachmentDropzone = document.querySelector('.attachment-dropzone');
+            const attachmentInput = document.getElementById('attachment');
+
+            attachmentDropzone.addEventListener('click', () => {
+                attachmentInput.click();
+            });
+
+            attachmentDropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                attachmentDropzone.classList.add('dragover');
+            });
+
+            attachmentDropzone.addEventListener('dragleave', () => {
+                attachmentDropzone.classList.remove('dragover');
+            });
+
+            attachmentDropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                attachmentDropzone.classList.remove('dragover');
+                attachmentInput.files = e.dataTransfer.files;
+            });
+        });
+    </script>
+</body>
+</html>
